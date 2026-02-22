@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400&family=Playfair+Display:ital,wght@1,400&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #fff5f6 0%, #ffe4e8 100%);
+            text-align: center;
+            overflow: auto;
+        }
+
+        /* Background Floating Elements */
+        .bg-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .floating {
+            position: absolute;
+            opacity: 0.15;
+            animation: float 6s infinite ease-in-out;
+            filter: grayscale(20%);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .heart-icon {
+            color: #d63384;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .divider {
+            width: 70px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #d63384, transparent);
+            margin: 0 15px;
+            border-radius: 1px;
+            box-shadow: 0 1px 3px rgba(214, 51, 132, 0.15);
+        }
+
+        .special-text {
+            font-size: 11px;
+            letter-spacing: 5px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(45px, 9vw, 85px);
+            color: #cc2b5e;
+            margin: 10px 0;
+            font-weight: 400;
+        }
+
+        .sub-text {
+            font-size: 16px;
+            color: #777;
+            margin-bottom: 35px;
+            font-style: italic;
+        }
+
+        .btn-red {
+            background: #d61a3c;
+            color: white;
+            padding: 14px 50px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(214, 26, 60, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-red:hover {
+            transform: scale(1.03);
+            background: #b31632;
+        }
+
+        .footer-name {
+            margin-top: 50px;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 20px;
+            color: #8a8a8a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-line {
+            width: 80px;
+            height: 1px;
+            background: #e5e5e5;
+            margin: 0 20px;
+        }
+
+        .arrow-down {
+            margin-top: 25px;
+            font-size: 18px;
+            color: #aaa;
+            animation: bounce 2s infinite;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .arrow-down:hover {
+            color: #cc2b5e;
+            transform: scale(1.2);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-8px);}
+            60% {transform: translateY(-4px);}
+        }
+
+        .letter-section {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+        }
+
+        .letter-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 2px solid #ffe4e8;
+        }
+
+        .letter-box h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 36px;
+            color: #cc2b5e;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .letter-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #555;
+            text-align: left;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .letter-signature {
+            text-align: right;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #cc2b5e;
+            margin-top: 30px;
+        }
+
+        .photos-section {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+            position: relative;
+        }
+
+        .photos-container {
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .photos-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 36px;
+            color: #cc2b5e;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .photo-card {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #cc2b5e 0%, #e8749f 100%);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(204, 43, 94, 0.5), 0 0 40px rgba(204, 43, 94, 0.4);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 10px 30px rgba(204, 43, 94, 0.3), 0 0 20px rgba(204, 43, 94, 0.2);
+            }
+            50% {
+                opacity: 1;
+                box-shadow: 0 15px 40px rgba(204, 43, 94, 0.5), 0 0 40px rgba(204, 43, 94, 0.4);
+            }
+        }
+
+
+
+        /* Admin Panel Styles */
+        .admin-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            transform: scale(1.1);
+            background: #555;
+        }
+
+        .admin-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .admin-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #cc2b5e;
+        }
+
+        .admin-header h2 {
+            margin: 0;
+            color: #cc2b5e;
+            font-family: 'Great Vibes', cursive;
+            font-size: 32px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #cc2b5e;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .admin-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
+            color: #cc2b5e;
+            border-bottom-color: #cc2b5e;
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #cc2b5e;
+            box-shadow: 0 0 5px rgba(204, 43, 94, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .admin-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-primary, .btn-secondary, .btn-danger {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #cc2b5e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b31632;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .memory-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .memory-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #cc2b5e;
+        }
+
+        .memory-item-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .memory-item-emoji {
+            font-size: 24px;
+            margin-right: 10px;
+            width: 35px;
+        }
+
+        .memory-item-text {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .memory-item-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+        }
+
+        .memory-item-buttons button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #45a049;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #da190b;
+        }
+
+        .emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .emoji-option {
+            background: #f0f0f0;
+            border: 2px solid transparent;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .emoji-option:hover,
+        .emoji-option.selected {
+            background: #cc2b5e;
+            border-color: #8a1a3d;
+        }
+
+        /* Image Upload Styles */
+        .image-upload-container {
+            margin: 20px 0;
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
+        .image-upload-label {
+            display: block;
+            padding: 30px;
+            border: 3px dashed #cc2b5e;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #fff5f6;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .image-upload-label:hover {
+            background: #ffe4e8;
+            border-color: #8a1a3d;
+        }
+
+        .image-upload-label.dragover {
+            background: #ffe4e8;
+            border-color: #cc2b5e;
+            transform: scale(1.02);
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            max-width: 100%;
+            border-radius: 10px;
+            max-height: 250px;
+            display: block;
+        }
+
+        .preview-container {
+            position: relative;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .memory-item-emoji {
+            font-size: 24px;
+            margin-right: 10px;
+            width: 35px;
+        }
+
+        .memory-item-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        /* Photo Modal Styles */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .photo-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .photo-modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+            animation: popUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .photo-modal-image {
+            max-width: 100%;
+            max-height: 75vh;
+            background: #f5f5f5;
+            border-radius: 15px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .photo-modal-description {
+            text-align: center;
+            margin-top: 15px;
+            color: #555;
+            font-size: 16px;
+            font-style: italic;
+        }
+
+        .photo-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #cc2b5e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-modal-close:hover {
+            background: #8a1a3d;
+            transform: rotate(90deg);
+        }
+
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+
+        .success-msg.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Greeting Modal Styles */
+        .greeting-modal {
+            display: none;
+            position: fixed;
+            z-index: 3500;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .greeting-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .greeting-content {
+            position: relative;
+            background: white;
+            border-radius: 25px;
+            padding: 50px 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.4);
+            animation: popUp 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: center;
+        }
+
+        .greeting-emoji {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        .greeting-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 40px;
+            color: #cc2b5e;
+            margin: 15px 0;
+        }
+
+        .greeting-text {
+            font-size: 16px;
+            color: #555;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .greeting-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .greeting-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .greeting-btn-yes {
+            background: linear-gradient(135deg, #cc2b5e 0%, #e8749f 100%);
+            color: white;
+        }
+
+        .greeting-btn-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(204, 43, 94, 0.3);
+        }
+
+        /* Music Player Styles */
+        .music-player {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(204, 43, 94, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            box-shadow: 0 8px 20px rgba(204, 43, 94, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .music-player:hover {
+            background: rgba(204, 43, 94, 1);
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(204, 43, 94, 0.4);
+        }
+
+        .music-icon {
+            font-size: 16px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Message Section Styles */
+        .message-section {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+            position: relative;
+            background: linear-gradient(135deg, #fff5f6 0%, #ffe4e8 100%);
+        }
+
+        .message-container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            padding: 60px 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 2px solid #ffe4e8;
+            text-align: center;
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .message-container h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 42px;
+            color: #cc2b5e;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .message-container p {
+            font-size: 16px;
+            line-height: 1.9;
+            color: #333;
+            margin: 10px 0;
+            font-family: 'Georgia', serif;
+            font-weight: 400;
+            min-height: 1.2em;
+            overflow: hidden;
+            white-space: normal;
+            opacity: 0;
+            transform: translateY(10px);
+            text-align: left;
+        }
+
+        /* Show paragraphs one after another with fade+slide */
+        .message-container p:nth-child(2) {
+            animation: fadeInUp 0.9s ease 0.4s forwards;
+        }
+
+        .message-container p:nth-child(3) {
+            animation: fadeInUp 0.9s ease 1.6s forwards;
+        }
+
+        .message-container p:nth-child(4) {
+            animation: fadeInUp 0.9s ease 3s forwards;
+        }
+
+        .message-container p:nth-child(5) {
+            animation: fadeInUp 0.9s ease 4.4s forwards;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Envelope styles: keeps letter hidden until opened */
+        .envelope {
+            width: 560px;
+            max-width: 92%;
+            height: 160px;
+            margin: 0 auto 18px;
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,250,250,0.95) 100%);
+            border-radius: 12px;
+            box-shadow: 0 18px 50px rgba(204,43,94,0.08);
+            overflow: visible;
+            border: 1px solid rgba(255,230,235,0.9);
+        }
+
+        .envelope .flap {
+            position: absolute;
+            top: -6px;
+            left: 0;
+            right: 0;
+            height: 86px;
+            background: linear-gradient(135deg, rgba(204,43,94,0.12) 0%, rgba(255,240,245,0.12) 100%);
+            transform-origin: center top;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            transition: transform 0.7s cubic-bezier(.2,.9,.2,1);
+            z-index: 4;
+        }
+
+        .envelope .body {
+            position: absolute;
+            top: 36px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+
+        .open-btn {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background: linear-gradient(180deg,#ff5b7a,#d6336a);
+            border: none;
+            color: white;
+            font-size: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(214,26,60,0.18);
+            cursor: pointer;
+            transition: transform 0.25s ease;
+        }
+
+        .open-btn:hover { transform: translateY(-4px); }
+
+        .open-text {
+            margin-top: 8px;
+            font-family: 'Great Vibes', cursive;
+            color: #cc2b5e;
+            font-size: 22px;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+
+        .envelope.opened .flap {
+            transform: rotateX(180deg) translateY(-30px);
+        }
+
+        .envelope.hidden { opacity: 0; transform: translateY(-10px); transition: opacity .4s ease, transform .4s ease; }
+
+        /* Hide letter until envelope is opened */
+        .message-container.hidden { opacity: 0; max-height: 0; overflow: hidden; transition: opacity .45s ease, max-height .6s ease; }
+        .message-container.revealed { opacity: 1; max-height: 2000px; }
+        /* Envelope / Open letter button styles */
+        .envelope {
+            width: 560px;
+            max-width: 92%;
+            height: 160px;
+            margin: 0 auto 18px;
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,250,250,0.95) 100%);
+            border-radius: 12px;
+            box-shadow: 0 18px 50px rgba(204,43,94,0.08);
+            overflow: visible;
+            border: 1px solid rgba(255,230,235,0.9);
+        }
+
+        .envelope .flap {
+            position: absolute;
+            top: -6px;
+            left: 0;
+            right: 0;
+            height: 86px;
+            background: linear-gradient(135deg, rgba(204,43,94,0.12) 0%, rgba(255,240,245,0.12) 100%);
+            transform-origin: center top;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            transition: transform 0.7s cubic-bezier(.2,.9,.2,1);
+            z-index: 4;
+        }
+
+        .envelope .body {
+            position: absolute;
+            top: 36px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+
+        .open-btn {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background: linear-gradient(180deg,#ff5b7a,#d6336a);
+            border: none;
+            color: white;
+            font-size: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(214,26,60,0.18);
+            cursor: pointer;
+            transition: transform 0.25s ease;
+        }
+
+        .open-btn:hover { transform: translateY(-4px); }
+
+        .open-text {
+            margin-top: 8px;
+            font-family: 'Great Vibes', cursive;
+            color: #cc2b5e;
+            font-size: 22px;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+
+        .envelope.opened .flap {
+            transform: rotateX(180deg) translateY(-30px);
+        }
+
+        .envelope.hidden { opacity: 0; transform: translateY(-10px); transition: opacity .4s ease, transform .4s ease; }
+        /* Typing caret */
+        .typing-caret {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #cc2b5e;
+            vertical-align: bottom;
+            margin-left: 6px;
+            animation: blink 0.7s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+        <source src="background-music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music Controls -->
+    <button class="music-player" id="audioToggle" onclick="toggleAudio()" title="Toggle Music">
+        <span class="music-icon">🎵</span>
+        <span>Unmute Music</span>
+    </button>
+
+    <div class="bg-elements">
+        <span class="floating" style="top: 10%; left: 5%; font-size: 50px;">💗</span>
+        <span class="floating" style="top: 5%; right: 5%; font-size: 50px; animation-delay: 1s;">💗</span>
+        <span class="floating" style="bottom: 10%; left: 3%; font-size: 45px; animation-delay: 2s;">💗</span>
+        <span class="floating" style="bottom: 5%; right: 3%; font-size: 45px; animation-delay: 1.5s;">💗</span>
+        <span class="floating" style="top: 30%; right: 25%; font-size: 20px;">❤</span>
+        <span class="floating" style="bottom: 40%; left: 20%; font-size: 18px; animation-delay: 3s;">❤</span>
+    </div>
+
+    <div class="container">
+        <div class="heart-icon">
+            <div class="divider"></div>
+            ❤
+            <div class="divider"></div>
+        </div>
+        
+        <div class="special-text">A Special Surprise For</div>
+        <h1> Happy Birthday, Palak...</h1>
+        <p class="sub-text">Let's Celebrate !</p>
+        
+        <button class="btn-red" onclick="startCelebration()">Click For Latter</button>
+
+        <div class="footer-name">
+            <div class="footer-line"></div>
+            Doobi
+            <div class="footer-line"></div>
+        </div>
+
+        <div class="arrow-down" onclick="openGreetingModal()">∨</div>
+    </div>
+
+    <!-- Message Section -->
+    <div class="message-section" id="message-section">
+        <div class="bg-elements" style="position: absolute; width: 100%; height: 100%;">
+            <span class="floating" style="top: 10%; left: 5%; font-size: 50px;">💗</span>
+            <span class="floating" style="top: 5%; right: 5%; font-size: 50px; animation-delay: 1s;">💗</span>
+            <span class="floating" style="bottom: 10%; left: 3%; font-size: 45px; animation-delay: 2s;">💗</span>
+            <span class="floating" style="bottom: 5%; right: 3%; font-size: 45px; animation-delay: 1.5s;">💗</span>
+            <span class="floating" style="top: 30%; right: 25%; font-size: 20px;">❤</span>
+            <span class="floating" style="bottom: 40%; left: 20%; font-size: 18px; animation-delay: 3s;">❤</span>
+        </div>
+        <div class="message-container" style="display: none;" id="messageContainer">
+            <h2>💕 A Special Latter 💕</h2>
+            <p>When I think about the day we first met… I can’t help but smile.😊
+You know, I was so nervous back then. My heart was racing, my words were stumbling, and I could barely speak properly. And yet, from that awkward, shy beginning ...   our little bond started to grow.🌸
+
+We talked about so many things. Your constant playful complaints, your adorable anger 😒, and the way I would keep trying to calm you down every single time. The way you gave me that silly nickname… the way you’d teasingly call me “ganduu” with that mischievous tone. Strange 😅, isn’t it? Even those small, silly moments feel priceless now. ✨
+
+Those were beautiful days. Messy, funny, emotional… but beautiful. 💫
+You know, there was always this quiet fear inside me — that one day, our conversations might just stop. That we might drift into silence. I used to carry that fear all the time. 💭 But now… even that fear has faded.
+Who knows if I’ll ever see you again or not. Maybe life has its own plans for us. And perhaps that’s the beauty of it — if we got everything we ever wanted, would life even feel the same? Maybe this is simply what destiny had written for us.🌙
+
+So, with a gentle smile and a heart full of memories… 🤍 
+Happy Birthday, once again. !!!
+Take care of yourself.
+
+Goodbye… for now. 🌙</p>
+            <p>Be Happy Stay Happy 🫶🏻</p>
+            <button class="btn-red" style="margin-top: 30px;" onclick="scrollToMemories()">View Memories 💝</button>
+        </div>
+    </div>
+
+    <div class="photos-section" id="photos-section">
+        <div class="bg-elements" style="position: absolute; width: 100%; height: 100%;">
+            <span class="floating" style="top: 10%; left: 5%; font-size: 50px;">💗</span>
+            <span class="floating" style="top: 5%; right: 5%; font-size: 50px; animation-delay: 1s;">💗</span>
+            <span class="floating" style="bottom: 10%; left: 3%; font-size: 45px; animation-delay: 2s;">💗</span>
+            <span class="floating" style="bottom: 5%; right: 3%; font-size: 45px; animation-delay: 1.5s;">💗</span>
+            <span class="floating" style="top: 30%; right: 25%; font-size: 20px;">❤</span>
+            <span class="floating" style="bottom: 40%; left: 20%; font-size: 18px; animation-delay: 3s;">❤</span>
+            <span class="floating" style="top: 50%; left: 10%; font-size: 40px; animation-delay: 0.5s;">💗</span>
+            <span class="floating" style="top: 60%; right: 15%; font-size: 35px; animation-delay: 2.5s;">❤</span>
+        </div>
+        <div class="photos-container">
+            <div class="photos-title">✨ Our Memories ✨</div>
+            <div class="gallery" id="gallery">
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Button -->
+    <button class="admin-btn" onclick="openAdminPanel()">⚙️</button>
+
+    <!-- Admin Modal -->
+    <div class="admin-modal" id="adminModal">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>Admin Panel</h2>
+                <button class="close-btn" onclick="closeAdminPanel()">✕</button>
+            </div>
+
+            <div class="success-msg" id="successMsg"></div>
+
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchTab('add')">➕ Add Memory</button>
+                <button class="admin-tab" onclick="switchTab('edit')">✏️ Edit Memories</button>
+            </div>
+
+            <!-- Add Memory Tab -->
+            <div class="admin-tab-content active" id="tab-add">
+                <div class="image-upload-container">
+                    <label class="image-upload-label" for="photoInput" id="uploadLabel">
+                        📸 📹 Click to upload photo/video or drag & drop
+                    </label>
+                    <input type="file" id="photoInput" class="image-upload-input" accept="image/*,video/*">
+                    <div id="previewContainer"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Memory Description (Optional):</label>
+                    <textarea id="memoryDesc" placeholder="Add a description for this memory..."></textarea>
+                </div>
+
+                <div class="admin-btn-group">
+                    <button class="btn-primary" onclick="addNewMemory()">Add Memory</button>
+                    <button class="btn-secondary" onclick="resetForm()">Clear</button>
+                </div>
+            </div>
+
+            <!-- Edit Memories Tab -->
+            <div class="admin-tab-content" id="tab-edit">
+                <div class="memory-list" id="memoryList">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Greeting Modal -->
+    <div class="greeting-modal" id="greetingModal">
+        <div class="greeting-content">
+            <div class="greeting-emoji">💕</div>
+            <h2 class="greeting-title">Ready?</h2>
+            <p class="greeting-text">
+                Let me show you some beautiful memories we've shared! 
+            </p>
+            <div class="greeting-buttons">
+                <button class="greeting-btn greeting-btn-yes" onclick="proceedToMemories()">Yes, Let's Go! 💫</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Popup Modal -->
+    <div class="photo-modal" id="photoModal">
+        <div class="photo-modal-content">
+            <button class="photo-modal-close" onclick="closePhotoModal()">✕</button>
+            <img id="photoModalImage" class="photo-modal-image" src="" alt="Photo">
+            <div class="photo-modal-description" id="photoModalDesc"></div>
+        </div>
+    </div>
+
+    <script>
+        // Use IndexedDB for media storage so many/large videos can be saved.
+        let photos = []; // will hold records from DB
+
+        let selectedFile = null;
+        let selectedPreviewURL = null;
+        let selectedMediaType = null;
+        let replaceId = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open('memoriesDB', 1);
+                req.onupgradeneeded = function(e) {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('media')) {
+                        const store = db.createObjectStore('media', { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('createdAt', 'createdAt');
+                    }
+                };
+                req.onsuccess = function(e) { resolve(e.target.result); };
+                req.onerror = function(e) { reject(e.target.error); };
+            });
+        }
+
+        function addMedia(fileBlob, type, description) {
+            return openDB().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction('media', 'readwrite');
+                const store = tx.objectStore('media');
+                const rec = { blob: fileBlob, type: type || 'photo', description: description || '', createdAt: Date.now() };
+                const r = store.add(rec);
+                r.onsuccess = function(ev) { resolve(ev.target.result); };
+                r.onerror = function(ev) { reject(ev.target.error); };
+                tx.oncomplete = function() { db.close(); };
+                tx.onerror = function(e) { db.close(); reject(e.target.error); };
+            }));
+        }
+
+        function getAllMedia() {
+            return openDB().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction('media', 'readonly');
+                const store = tx.objectStore('media');
+                const results = [];
+                const cursorReq = store.openCursor();
+                cursorReq.onsuccess = function(e) {
+                    const cursor = e.target.result;
+                    if (cursor) {
+                        results.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        resolve(results);
+                    }
+                };
+                cursorReq.onerror = function(ev) { reject(ev.target.error); };
+                tx.oncomplete = function() { db.close(); };
+                tx.onerror = function(e) { db.close(); reject(e.target.error); };
+            }));
+        }
+
+        function getMedia(id) {
+            return openDB().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction('media', 'readonly');
+                const store = tx.objectStore('media');
+                const req = store.get(id);
+                req.onsuccess = function(ev) { db.close(); resolve(ev.target.result); };
+                req.onerror = function(ev) { db.close(); reject(ev.target.error); };
+            }));
+        }
+
+        function updateMedia(id, updates) {
+            return openDB().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction('media', 'readwrite');
+                const store = tx.objectStore('media');
+                const getReq = store.get(id);
+                getReq.onsuccess = function(ev) {
+                    const rec = ev.target.result;
+                    if (!rec) { db.close(); reject(new Error('Not found')); return; }
+                    Object.assign(rec, updates);
+                    const putReq = store.put(rec);
+                    putReq.onsuccess = function() { db.close(); resolve(true); };
+                    putReq.onerror = function(e) { db.close(); reject(e.target.error); };
+                };
+                getReq.onerror = function(e) { db.close(); reject(e.target.error); };
+            }));
+        }
+
+        function deleteMedia(id) {
+            return openDB().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction('media', 'readwrite');
+                const store = tx.objectStore('media');
+                const req = store.delete(id);
+                req.onsuccess = function() { db.close(); resolve(true); };
+                req.onerror = function(e) { db.close(); reject(e.target.error); };
+            }));
+        }
+
+        // UI logic
+        function loadData() {
+            setupImageUpload();
+            applyGalleryColumns();
+            getAllMedia().then(records => {
+                records.sort((a,b) => a.createdAt - b.createdAt);
+                photos = records;
+                loadPhotos();
+                loadMemoryList();
+            }).catch(err => console.error('Failed to load media:', err));
+        }
+
+        function setupImageUpload() {
+            const photoInput = document.getElementById('photoInput');
+            const uploadLabel = document.getElementById('uploadLabel');
+            photoInput.addEventListener('change', function(e) { handleFileSelection(e.target.files[0]); });
+            uploadLabel.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); uploadLabel.classList.add('dragover'); });
+            uploadLabel.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); uploadLabel.classList.remove('dragover'); });
+            uploadLabel.addEventListener('drop', function(e) { e.preventDefault(); e.stopPropagation(); uploadLabel.classList.remove('dragover'); const files = e.dataTransfer.files; if (files.length) handleFileSelection(files[0]); });
+        }
+
+        function handleFileSelection(file) {
+            if (!file) return;
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+            if (!isImage && !isVideo) { alert('Please select a valid image or video file!'); return; }
+            selectedFile = file; selectedMediaType = isVideo ? 'video' : 'photo';
+            if (selectedPreviewURL) URL.revokeObjectURL(selectedPreviewURL);
+            selectedPreviewURL = URL.createObjectURL(file);
+            showImagePreview(selectedPreviewURL, selectedMediaType);
+        }
+
+        function showImagePreview(mediaSrc, type = 'photo') {
+            const previewContainer = document.getElementById('previewContainer');
+            let previewHTML = '';
+            if (type === 'video') previewHTML = `<div class="preview-container"><video src="${mediaSrc}" class="image-preview" controls style="width:100%;border-radius:10px"></video><button type="button" class="remove-image-btn" onclick="removeImagePreview()">✕</button></div>`;
+            else previewHTML = `<div class="preview-container"><img src="${mediaSrc}" class="image-preview"><button type="button" class="remove-image-btn" onclick="removeImagePreview()">✕</button></div>`;
+            previewContainer.innerHTML = previewHTML;
+        }
+
+        function removeImagePreview() { if (selectedPreviewURL) { URL.revokeObjectURL(selectedPreviewURL); selectedPreviewURL = null; } selectedFile = null; selectedMediaType = null; const input = document.getElementById('photoInput'); if (input) input.value = ''; document.getElementById('previewContainer').innerHTML = ''; }
+
+        function addNewMemory() {
+            if (!selectedFile) { showMessage('Please select a photo or video first!', false); return; }
+            const description = document.getElementById('memoryDesc').value || '';
+            addMedia(selectedFile, selectedMediaType, description).then(id => { showMessage('✅ Memory added successfully!', true); removeImagePreview(); document.getElementById('memoryDesc').value = ''; loadData(); setTimeout(() => { const photosSection = document.getElementById('photos-section'); photosSection.scrollIntoView({ behavior: 'smooth' }); }, 500); }).catch(err => { console.error('Failed to add media:', err); showMessage('Failed to save memory. Storage error.', false); });
+        }
+
+        function resetForm() { document.getElementById('memoryDesc').value = ''; removeImagePreview(); }
+
+        function loadMemoryList() {
+            const list = document.getElementById('memoryList');
+            list.innerHTML = '';
+            if (!photos || photos.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#999">No memories yet. Add one to get started!</p>';
+                return;
+            }
+            photos.forEach(rec => {
+                const item = document.createElement('div');
+                item.className = 'memory-item';
+                const icon = rec.type === 'video' ? '📹' : '📸';
+                const content = document.createElement('div');
+                content.className = 'memory-item-content';
+                content.innerHTML = `<div style="display:flex;align-items:center"><span style="font-size:24px;margin-right:10px">${icon}</span><span class="memory-item-text">${rec.description || '(No description)'}</span></div>`;
+                const buttons = document.createElement('div');
+                buttons.className = 'memory-item-buttons';
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-btn';
+                editBtn.textContent = 'Edit';
+                editBtn.addEventListener('click', () => editMemory(rec.id));
+                
+                const replaceBtn = document.createElement('button');
+                replaceBtn.className = 'btn-secondary';
+                replaceBtn.textContent = 'Replace';
+                replaceBtn.addEventListener('click', () => replaceMemoryPrompt(rec.id));
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.addEventListener('click', () => deleteMemory(rec.id));
+                
+                buttons.appendChild(editBtn);
+                buttons.appendChild(replaceBtn);
+                buttons.appendChild(deleteBtn);
+                item.appendChild(content);
+                item.appendChild(buttons);
+                list.appendChild(item);
+            });
+        }
+
+        function editMemory(id) { const rec = photos.find(p => p.id === id); if (!rec) return; const newDesc = prompt('Enter new description:', rec.description || ''); if (newDesc === null) return; updateMedia(id, { description: newDesc }).then(() => { showMessage('✅ Memory updated successfully!', true); loadData(); }).catch(err => { console.error(err); showMessage('Failed to update description.', false); }); }
+
+        function deleteMemory(id) { if (!confirm('Are you sure you want to delete this memory?')) return; deleteMedia(id).then(() => { showMessage('🗑️ Memory deleted successfully!', true); loadData(); }).catch(err => { console.error(err); showMessage('Failed to delete memory.', false); }); }
+
+        function showMessage(msg, isSuccess) { const msgBox = document.getElementById('successMsg'); msgBox.textContent = msg; msgBox.style.borderLeftColor = isSuccess ? '#28a745' : '#dc3545'; msgBox.style.backgroundColor = isSuccess ? '#d4edda' : '#f8d7da'; msgBox.style.color = isSuccess ? '#155724' : '#721c24'; msgBox.classList.add('show'); setTimeout(() => msgBox.classList.remove('show'), 3000); }
+
+        function startCelebration() { const messageSection = document.getElementById('message-section'); const messageContainer = document.getElementById('messageContainer'); messageSection.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => { if (messageContainer) messageContainer.style.display = 'block'; typeMessage(); setTimeout(loadPhotos, 900); }, 600); }
+
+        function typeMessage() { const paras = Array.from(document.querySelectorAll('#message-section .message-container p')); paras.forEach(p => { p.dataset.full = p.textContent.trim(); p.innerHTML = ''; p.style.opacity = 0; }); function typePara(i) { if (i >= paras.length) return; const p = paras[i]; const full = p.dataset.full || ''; p.style.opacity = 1; const caret = document.createElement('span'); caret.className = 'typing-caret'; p.appendChild(caret); let pos = 0; function step() { if (pos < full.length) { const ch = full.charAt(pos); if (ch === '\n') p.insertBefore(document.createElement('br'), caret); else p.insertBefore(document.createTextNode(ch), caret); pos++; const delay = 25 + Math.random() * 50; setTimeout(step, delay); } else { caret.remove(); setTimeout(() => typePara(i + 1), 400); } } step(); } typePara(0); }
+
+        function scrollToMemories() { const photosSection = document.getElementById('photos-section'); if (photosSection) photosSection.scrollIntoView({ behavior: 'smooth' }); }
+
+        function openGreetingModal() { document.getElementById('greetingModal').classList.add('active'); }
+        function closeGreetingModal() { document.getElementById('greetingModal').classList.remove('active'); }
+        function proceedToMemories() { closeGreetingModal(); startCelebration(); }
+
+        function loadPhotos() { const gallery = document.getElementById('gallery'); gallery.innerHTML = ''; if (!photos || photos.length === 0) { gallery.innerHTML = '<p style="text-align:center;width:100%;color:#999;">No memories added yet.</p>'; return; } photos.forEach((rec, index) => { const photoCard = document.createElement('div'); photoCard.className = 'photo-card'; photoCard.style.animationDelay = `${index * 0.2}s`; const mediaType = rec.type || 'photo'; let src = ''; if (rec.blob instanceof Blob) src = URL.createObjectURL(rec.blob); else if (typeof rec.blob === 'string') src = rec.blob; if (mediaType === 'video') { photoCard.style.position = 'relative'; photoCard.innerHTML = `<video src="${src}" style="width:100%;height:100%;object-fit:cover;"></video><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:40px;background:rgba(0,0,0,0.5);width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;pointer-events:none;">▶</div>`; } else { photoCard.innerHTML = `<img src="${src}" alt="Memory">`; } photoCard.onclick = () => showPhotoModal(rec.id); gallery.appendChild(photoCard); }); }
+
+        function showPhotoModal(id) { getMedia(id).then(rec => { if (!rec) return; const modal = document.getElementById('photoModal'); const content = modal.querySelector('.photo-modal-content'); const desc = document.getElementById('photoModalDesc'); const old = content.querySelector('img, video'); if (old) old.remove(); if (rec.type === 'video') { const v = document.createElement('video'); v.className = 'photo-modal-image'; v.controls = true; v.src = URL.createObjectURL(rec.blob); v.style.maxWidth = '100%'; v.style.maxHeight = '75vh'; content.insertBefore(v, desc); } else { const i = document.createElement('img'); i.className = 'photo-modal-image'; i.src = URL.createObjectURL(rec.blob); i.alt = 'Memory'; content.insertBefore(i, desc); } desc.textContent = rec.description || '💕 Beautiful Memory!'; modal.classList.add('active'); }).catch(err => console.error(err)); }
+
+        function closePhotoModal() { document.getElementById('photoModal').classList.remove('active'); }
+
+        document.addEventListener('click', function(event) { const gm = document.getElementById('greetingModal'); if (event.target === gm) closeGreetingModal(); const pm = document.getElementById('photoModal'); if (event.target === pm) closePhotoModal(); });
+        window.onclick = function(event) { const am = document.getElementById('adminModal'); if (event.target === am) closeAdminPanel(); };
+
+        function applyGalleryColumns() { const saved = localStorage.getItem('galleryCols'); const cols = saved ? parseInt(saved, 10) : null; if (cols && cols > 0) { document.documentElement.style.setProperty('--gallery-cols', cols); const input = document.getElementById('galleryCols'); if (input) input.value = cols; } }
+        function setGalleryColumns() { const input = document.getElementById('galleryCols'); if (!input) return; let v = parseInt(input.value, 10) || 3; if (v < 1) v = 1; if (v > 6) v = 6; document.documentElement.style.setProperty('--gallery-cols', v); localStorage.setItem('galleryCols', String(v)); showMessage('Gallery columns updated', true); }
+
+        function replaceMemoryPrompt(id) { replaceId = id; const rep = document.getElementById('replaceInput'); if (rep) rep.click(); }
+
+        function openAdminPanel() { const pwd = prompt('Enter admin password:'); if (pwd === '2702') { document.getElementById('adminModal').classList.add('active'); loadMemoryList(); } else { showMessage('Incorrect admin password.', false); } }
+        function closeAdminPanel() { document.getElementById('adminModal').classList.remove('active'); }
+        function switchTab(tab) { document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active')); document.getElementById('tab-' + tab).classList.add('active'); if (event && event.target) event.target.classList.add('active'); if (tab === 'edit') loadMemoryList(); }
+
+        window.onload = function() { loadData(); const audio = document.getElementById('bgMusic'); audio.currentTime = 15; audio.play().catch(err => console.log('Autoplay blocked:', err)); applyGalleryColumns(); const replaceInput = document.getElementById('replaceInput'); if (replaceInput) { replaceInput.addEventListener('change', function(e) { const f = e.target.files && e.target.files[0]; if (!f || replaceId === null) return; updateMedia(replaceId, { blob: f, type: f.type.startsWith('video/') ? 'video' : 'photo' }).then(() => { showMessage('Memory replaced', true); replaceId = null; replaceInput.value = ''; loadData(); }).catch(err => { console.error(err); showMessage('Failed to replace memory.', false); replaceId = null; replaceInput.value = ''; }); }); } };
+
+        function toggleAudio() { const audio = document.getElementById('bgMusic'); const button = document.getElementById('audioToggle'); if (audio.muted) { audio.muted = false; audio.currentTime = 15; audio.play().catch(err => console.log('Playback error:', err)); button.innerHTML = '<span class="music-icon">🎵</span><span>Mute Music</span>'; } else { audio.muted = true; audio.pause(); button.innerHTML = '<span class="music-icon">🎵</span><span>Unmute Music</span>'; } }
+    </script>
+
+</body>
+</html>
