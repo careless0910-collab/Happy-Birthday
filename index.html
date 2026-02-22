@@ -1224,6 +1224,7 @@ Goodbye… for now. 🌙</p>
             <div class="admin-tabs">
                 <button class="admin-tab active" onclick="switchTab('add')">➕ Add Memory</button>
                 <button class="admin-tab" onclick="switchTab('edit')">✏️ Edit Memories</button>
+                <button class="admin-tab" onclick="switchTab('sync')">☁️ Sync to Server</button>
             </div>
 
             <!-- Add Memory Tab -->
@@ -1250,6 +1251,21 @@ Goodbye… for now. 🌙</p>
             <!-- Edit Memories Tab -->
             <div class="admin-tab-content" id="tab-edit">
                 <div class="memory-list" id="memoryList">
+                </div>
+            </div>
+
+            <!-- Sync to Server Tab -->
+            <div class="admin-tab-content" id="tab-sync">
+                <div style="margin-bottom: 15px;">
+                    <p style="font-size:13px;color:#666;margin-bottom:10px;">Export your memories as a JSON file. Upload the file to the same server folder as this page (name it <code>memories.json</code>) so all visitors can see them.</p>
+                    <button class="btn-primary" onclick="exportMemoriesToJSON()" style="width:100%;margin-bottom:15px;">📥 Export as JSON File</button>
+                </div>
+                <hr style="border:none;border-top:1px solid #ddd;margin:20px 0;">
+                <div>
+                    <label>Or enter shared server URL:</label>
+                    <input type="text" id="serverURL" placeholder="https://your-server.com" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;margin-bottom:10px;">
+                    <p style="font-size:13px;color:#666;margin-bottom:10px;">Visitors will download shared memories from <code>serverURL/memories.json</code></p>
+                    <button class="btn-secondary" onclick="loadMemoriesFromServer()" style="width:100%;">☁️ Load from Custom Server</button>
                 </div>
             </div>
         </div>
@@ -1377,6 +1393,8 @@ Goodbye… for now. 🌙</p>
         function loadData() {
             setupImageUpload();
             applyGalleryColumns();
+            // Try to auto-load memories from shared memories.json file
+            autoLoadMemoriesFromServer();
             getAllMedia().then(records => {
                 records.sort((a,b) => a.createdAt - b.createdAt);
                 photos = records;
@@ -1501,6 +1519,109 @@ Goodbye… for now. 🌙</p>
         window.onload = function() { loadData(); const audio = document.getElementById('bgMusic'); audio.currentTime = 15; audio.play().catch(err => console.log('Autoplay blocked:', err)); applyGalleryColumns(); const replaceInput = document.getElementById('replaceInput'); if (replaceInput) { replaceInput.addEventListener('change', function(e) { const f = e.target.files && e.target.files[0]; if (!f || replaceId === null) return; updateMedia(replaceId, { blob: f, type: f.type.startsWith('video/') ? 'video' : 'photo' }).then(() => { showMessage('Memory replaced', true); replaceId = null; replaceInput.value = ''; loadData(); }).catch(err => { console.error(err); showMessage('Failed to replace memory.', false); replaceId = null; replaceInput.value = ''; }); }); } };
 
         function toggleAudio() { const audio = document.getElementById('bgMusic'); const button = document.getElementById('audioToggle'); if (audio.muted) { audio.muted = false; audio.currentTime = 15; audio.play().catch(err => console.log('Playback error:', err)); button.innerHTML = '<span class="music-icon">🎵</span><span>Mute Music</span>'; } else { audio.muted = true; audio.pause(); button.innerHTML = '<span class="music-icon">🎵</span><span>Unmute Music</span>'; } }
+
+        // Server sync functions
+        function exportMemoriesToJSON() {
+            getAllMedia().then(records => {
+                const toExport = records.map(rec => ({
+                    type: rec.type,
+                    description: rec.description,
+                    createdAt: rec.createdAt,
+                    blobData: null // will be handled separately
+                }));
+                
+                // Create a single object with metadata and blobs
+                const exportObj = { memories: toExport };
+                
+                // Convert records to base64 and attach
+                const promises = records.map((rec, idx) => {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            toExport[idx].blobData = e.target.result; // base64 data URL
+                            resolve();
+                        };
+                        reader.readAsDataURL(rec.blob);
+                    });
+                });
+                
+                Promise.all(promises).then(() => {
+                    const jsonStr = JSON.stringify(exportObj, null, 2);
+                    const blob = new Blob([jsonStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'memories.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showMessage('✅ Memories exported! Upload memories.json to your server folder.', true);
+                });
+            }).catch(err => {
+                console.error('Export failed:', err);
+                showMessage('❌ Export failed.', false);
+            });
+        }
+
+        function loadMemoriesFromServer() {
+            const serverURL = document.getElementById('serverURL').value.trim() || localStorage.getItem('serverURL');
+            if (!serverURL) { showMessage('Please enter a server URL.', false); return; }
+            
+            showMessage('⏳ Downloading memories from server...', true);
+            fetch(serverURL.endsWith('/') ? serverURL + 'memories.json' : serverURL + '/memories.json')
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to fetch: ' + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    const memories = data.memories || data;
+                    let loaded = 0;
+                    const promises = memories.map(mem => {
+                        if (mem.blobData && mem.blobData.startsWith('data:')) {
+                            return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
+                        }
+                        return Promise.resolve();
+                    });
+                    return Promise.all(promises).then(() => {
+                        showMessage(`✅ Loaded ${loaded} memories from server!`, true);
+                        if (serverURL) localStorage.setItem('serverURL', serverURL);
+                        loadData();
+                    });
+                })
+                .catch(err => {
+                    console.error('Download failed:', err);
+                    showMessage('❌ Failed to download. Check server URL or memories.json path.', false);
+                });
+        }
+
+        function autoLoadMemoriesFromServer() {
+            // On page load, try to auto-load from memories.json in same folder
+            fetch('memories.json')
+                .then(res => {
+                    if (res.ok) return res.json();
+                    return null;
+                })
+                .then(data => {
+                    if (!data) return;
+                    const memories = data.memories || data;
+                    let loaded = 0;
+                    const promises = memories.map(mem => {
+                        if (mem.blobData && mem.blobData.startsWith('data:')) {
+                            return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
+                        }
+                        return Promise.resolve();
+                    });
+                    return Promise.all(promises).then(() => {
+                        console.log('Auto-loaded ' + loaded + ' memories from memories.json');
+                        loadData();
+                    });
+                })
+                .catch(err => {
+                    // memories.json doesn't exist, that's okay - just use local IndexedDB
+                    console.log('No shared memories.json found, using local IndexedDB.');
+                });
+        }
     </script>
 
 </body>
