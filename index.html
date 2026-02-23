@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             height: auto;
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #fff5f6 0%, #ffe4e8 100%);
             text-align: center;
             overflow: auto;
@@ -75,11 +75,12 @@
         }
 
         h1 {
-            font-family: 'Great Vibes', cursive;
+            font-family: 'Great Vibes', cursive, 'Apple Color Emoji', 'Segoe UI Emoji';
             font-size: clamp(45px, 9vw, 85px);
             color: #cc2b5e;
             margin: 10px 0;
             font-weight: 400;
+            -webkit-font-smoothing: antialiased;
         }
 
         .sub-text {
@@ -812,6 +813,8 @@
             color: #555;
             margin: 20px 0;
             line-height: 1.6;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Montserrat', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         .greeting-buttons {
@@ -903,13 +906,15 @@
         }
 
         .message-container h2 {
-            font-family: 'Great Vibes', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Great Vibes', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI';
             font-size: 42px;
             color: #cc2b5e;
             margin-top: 0;
             margin-bottom: 30px;
             font-weight: 400;
             letter-spacing: 1px;
+            font-variant: normal;
+            -webkit-font-smoothing: antialiased;
         }
 
         .message-container p {
@@ -917,7 +922,7 @@
             line-height: 1.9;
             color: #333;
             margin: 10px 0;
-            font-family: 'Georgia', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', serif;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Georgia', -apple-system, BlinkMacSystemFont, 'Segoe UI', serif;
             font-weight: 400;
             min-height: 1.2em;
             overflow: hidden;
@@ -927,6 +932,8 @@
             text-align: left;
             word-wrap: break-word;
             font-feature-settings: 'cv01';
+            font-variant: normal;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* Show paragraphs one after another with fade+slide */
