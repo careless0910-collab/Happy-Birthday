@@ -1678,6 +1678,22 @@ Goodbye… for now. 🌙</p>
 
         function startCelebration() { const messageSection = document.getElementById('message-section'); const messageContainer = document.getElementById('messageContainer'); messageSection.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => { if (messageContainer) messageContainer.style.display = 'block'; typeMessage(); setTimeout(loadPhotos, 900); }, 600); }
 
+        // Play background music from a given time safely (handles play promise rejections)
+        function playMusicFrom(seconds) {
+            const audio = document.getElementById('bgMusic');
+            if (!audio) return;
+            try {
+                // Some browsers throw if currentTime is set before metadata loaded
+                audio.currentTime = seconds;
+            } catch (e) {
+                // Wait for metadata to load then set currentTime
+                audio.addEventListener('loadedmetadata', function() { try { audio.currentTime = seconds; } catch (e2) { console.warn('Failed to set currentTime after metadata:', e2); } }, { once: true });
+            }
+            audio.play().catch(err => {
+                console.log('Playback prevented or failed:', err);
+            });
+        }
+
         function typeMessage() { const paras = Array.from(document.querySelectorAll('#message-section .message-container p')); paras.forEach(p => { p.dataset.full = p.textContent.trim(); p.innerHTML = ''; p.style.opacity = 0; }); function typePara(i) { if (i >= paras.length) return; const p = paras[i]; const full = p.dataset.full || ''; p.style.opacity = 1; const caret = document.createElement('span'); caret.className = 'typing-caret'; p.appendChild(caret); let pos = 0; function step() { if (pos < full.length) { const ch = full.charAt(pos); if (ch === '\n') p.insertBefore(document.createElement('br'), caret); else p.insertBefore(document.createTextNode(ch), caret); pos++; const delay = 25 + Math.random() * 50; setTimeout(step, delay); } else { caret.remove(); setTimeout(() => typePara(i + 1), 400); } } step(); } typePara(0); }
 
         function scrollToMemories() { const photosSection = document.getElementById('photos-section'); if (photosSection) photosSection.scrollIntoView({ behavior: 'smooth' }); }
