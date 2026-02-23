@@ -1528,13 +1528,44 @@ Goodbye… for now. 🌙</p>
                 list.innerHTML = '<p style="text-align:center;color:#999">No memories yet. Add one to get started!</p>';
                 return;
             }
+
+            // Add bulk controls header
+            const controls = document.createElement('div');
+            controls.style.display = 'flex';
+            controls.style.justifyContent = 'space-between';
+            controls.style.alignItems = 'center';
+            controls.style.marginBottom = '10px';
+
+            const left = document.createElement('div');
+            left.innerHTML = `<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="selectAllMemories"> <span style="font-size:14px;color:#555">Select all</span></label>`;
+            controls.appendChild(left);
+
+            const right = document.createElement('div');
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.textContent = 'Delete selected';
+            delBtn.style.marginLeft = '8px';
+            delBtn.addEventListener('click', deleteSelectedMemories);
+            right.appendChild(delBtn);
+            controls.appendChild(right);
+
+            list.appendChild(controls);
+
             photos.forEach(rec => {
                 const item = document.createElement('div');
                 item.className = 'memory-item';
                 const icon = rec.type === 'video' ? '📹' : '📸';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'memory-select-checkbox';
+                checkbox.dataset.id = rec.id;
+                checkbox.style.marginRight = '12px';
+
                 const content = document.createElement('div');
                 content.className = 'memory-item-content';
                 content.innerHTML = `<div style="display:flex;align-items:center"><span style="font-size:24px;margin-right:10px">${icon}</span><span class="memory-item-text">${rec.description || '(No description)'}</span></div>`;
+
                 const buttons = document.createElement('div');
                 buttons.className = 'memory-item-buttons';
                 
@@ -1556,15 +1587,40 @@ Goodbye… for now. 🌙</p>
                 buttons.appendChild(editBtn);
                 buttons.appendChild(replaceBtn);
                 buttons.appendChild(deleteBtn);
+
+                item.appendChild(checkbox);
                 item.appendChild(content);
                 item.appendChild(buttons);
                 list.appendChild(item);
             });
+
+            // Hook up select all checkbox
+            const selectAll = document.getElementById('selectAllMemories');
+            if (selectAll) {
+                selectAll.checked = false;
+                selectAll.addEventListener('change', function() {
+                    const boxes = document.querySelectorAll('.memory-select-checkbox');
+                    boxes.forEach(b => b.checked = selectAll.checked);
+                });
+            }
         }
 
         function editMemory(id) { const rec = photos.find(p => p.id === id); if (!rec) return; const newDesc = prompt('Enter new description:', rec.description || ''); if (newDesc === null) return; updateMedia(id, { description: newDesc }).then(() => { showMessage('✅ Memory updated successfully!', true); loadData(); }).catch(err => { console.error(err); showMessage('Failed to update description.', false); }); }
 
         function deleteMemory(id) { if (!confirm('Are you sure you want to delete this memory?')) return; deleteMedia(id).then(() => { showMessage('🗑️ Memory deleted successfully!', true); loadData(); }).catch(err => { console.error(err); showMessage('Failed to delete memory.', false); }); }
+
+        // Delete multiple selected memories
+        function deleteSelectedMemories() {
+            const boxes = Array.from(document.querySelectorAll('.memory-select-checkbox')).filter(b => b.checked);
+            if (boxes.length === 0) {
+                showMessage('Please select at least one memory to delete.', false);
+                return;
+            }
+            if (!confirm(`Are you sure you want to delete ${boxes.length} selected memories?`)) return;
+            const ids = boxes.map(b => Number(b.dataset.id));
+            const promises = ids.map(id => deleteMedia(id));
+            Promise.all(promises).then(() => { showMessage('🗑️ Selected memories deleted.', true); loadData(); }).catch(err => { console.error('Bulk delete failed:', err); showMessage('Failed to delete selected memories.', false); });
+        }
 
         function showMessage(msg, isSuccess) { const msgBox = document.getElementById('successMsg'); msgBox.textContent = msg; msgBox.style.borderLeftColor = isSuccess ? '#28a745' : '#dc3545'; msgBox.style.backgroundColor = isSuccess ? '#d4edda' : '#f8d7da'; msgBox.style.color = isSuccess ? '#155724' : '#721c24'; msgBox.classList.add('show'); setTimeout(() => msgBox.classList.remove('show'), 3000); }
 
