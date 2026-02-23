@@ -1841,6 +1841,45 @@ Goodbye… for now. 🌙</p>
             }).catch(err => { console.error('Build export failed:', err); showMessage('❌ Failed to build export.', false); });
         }
 
+        // Replace local IndexedDB `media` store with the provided memories array.
+        // Each memory should have { type, description, createdAt, blobData }
+        function replaceLocalWithMemories(memories, limit = 8) {
+            if (!Array.isArray(memories)) return Promise.reject(new Error('Invalid memories array'));
+            // Trim to limit
+            const toImport = memories.slice(0, limit);
+            return openDB().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction('media', 'readwrite');
+                const store = tx.objectStore('media');
+                const clearReq = store.clear();
+                clearReq.onsuccess = function() {
+                    // After clear, import sequentially
+                    const importPromises = toImport.map(mem => {
+                        return new Promise((res) => {
+                            try {
+                                if (mem.blobData && mem.blobData.startsWith('data:')) {
+                                    const arr = mem.blobData.split(',');
+                                    const mimeMatch = arr[0].match(/:(.*?);/);
+                                    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+                                    const bstr = atob(arr[1]);
+                                    const n = bstr.length;
+                                    const u8arr = new Uint8Array(n);
+                                    for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+                                    const blob = new Blob([u8arr], { type: mime });
+                                    // Use addMedia to maintain consistent DB handling
+                                    addMedia(blob, mem.type || 'photo', mem.description || '', mem.createdAt).then(() => res()).catch(() => res());
+                                } else {
+                                    // No blob data available, skip
+                                    res();
+                                }
+                            } catch (e) { console.error('Import error', e); res(); }
+                        });
+                    });
+                    Promise.all(importPromises).then(() => { db.close(); resolve(true); }).catch(e => { db.close(); reject(e); });
+                };
+                clearReq.onerror = function(e) { db.close(); reject(e.target.error); };
+            }));
+        }
+
         // Compute SHA-256 hex digest for a Blob
         function computeHashFromBlob(blob) {
             return blob.arrayBuffer().then(buf => crypto.subtle.digest('SHA-256', buf)).then(hashBuffer => {
@@ -2028,55 +2067,16 @@ Goodbye… for now. 🌙</p>
                             return;
                         }
 
-                        console.log(`✅ Found memories.json with ${memories.length} items`);
-                        
-                        return getAllMedia().then(existingRecords => {
-                            const existingCreatedAt = new Set(existingRecords.map(r => r.createdAt));
-                            let loaded = 0;
-                            let failed = 0;
+                        console.log(`✅ Found memories.json with ${memories.length} items - replacing local set`);
 
-                            const promises = memories.map(mem => {
-                                if (existingCreatedAt.has(mem.createdAt)) {
-                                    return Promise.resolve();
-                                }
-
-                                if (existingRecords.length + loaded >= 8) {
-                                    return Promise.resolve();
-                                }
-
-                                if (mem.blobData && mem.blobData.startsWith('data:')) {
-                                    return new Promise((resolve) => {
-                                        try {
-                                            const arr = mem.blobData.split(',');
-                                            const mimeMatch = arr[0].match(/:(.*?);/);
-                                            const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-                                            const bstr = atob(arr[1]);
-                                            const n = bstr.length;
-                                            const u8arr = new Uint8Array(n);
-                                            for (let i = 0; i < n; i++) {
-                                                u8arr[i] = bstr.charCodeAt(i);
-                                            }
-                                            const blob = new Blob([u8arr], { type: mime });
-                                            addMedia(blob, mem.type || 'photo', mem.description || '', mem.createdAt)
-                                                .then(() => { loaded++; console.log('✅ Memory loaded'); resolve(); })
-                                                .catch(e => { failed++; console.error('Failed to save memory:', e); resolve(); });
-                                        } catch (e) {
-                                            failed++;
-                                            console.error('Error processing memory:', e);
-                                            resolve();
-                                        }
-                                    });
-                                }
-                                return Promise.resolve();
-                            });
-
-                            return Promise.all(promises).then(() => {
-                                console.log(`📸 Successfully loaded ${loaded} memories (${failed} failed)`);
-                                if (loaded > 0) {
-                                    showMessage(`✅ Loaded ${loaded} shared memories!`, true);
-                                }
-                                if (onComplete) onComplete();
-                            });
+                        // Replace the local DB with the published memories so viewers see exactly the admin set.
+                        // Keep up to 8 items (enforced by replaceLocalWithMemories)
+                        return replaceLocalWithMemories(memories.slice(0, 8)).then(() => {
+                            showMessage(`✅ Loaded ${Math.min(memories.length,8)} shared memories (replaced local)`, true);
+                            if (onComplete) onComplete();
+                        }).catch(err => {
+                            console.error('Failed to replace local memories:', err);
+                            if (onComplete) onComplete();
                         });
                     })
                     .catch(err => {
