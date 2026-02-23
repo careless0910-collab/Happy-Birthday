@@ -1302,6 +1302,7 @@ Goodbye… for now. 🌙</p>
         let selectedPreviewURL = null;
         let selectedMediaType = null;
         let replaceId = null;
+        let autoLoadDone = false; // Flag to prevent multiple auto-loads
 
         function openDB() {
             return new Promise((resolve, reject) => {
@@ -1393,8 +1394,11 @@ Goodbye… for now. 🌙</p>
         function loadData() {
             setupImageUpload();
             applyGalleryColumns();
-            // Try to auto-load memories from shared memories.json file
-            autoLoadMemoriesFromServer();
+            // Try to auto-load memories from shared memories.json file (only once)
+            if (!autoLoadDone) {
+                autoLoadDone = true;
+                autoLoadMemoriesFromServer();
+            }
             getAllMedia().then(records => {
                 records.sort((a,b) => a.createdAt - b.createdAt);
                 photos = records;
@@ -1651,7 +1655,13 @@ Goodbye… for now. 🌙</p>
                         return Promise.all(promises).then(() => {
                             if (loaded > 0) {
                                 console.log('Auto-loaded ' + loaded + ' new memories from memories.json');
-                                loadData();
+                                // Refresh UI without calling loadData() to avoid infinite recursion
+                                getAllMedia().then(records => {
+                                    records.sort((a,b) => a.createdAt - b.createdAt);
+                                    photos = records;
+                                    loadPhotos();
+                                    loadMemoryList();
+                                }).catch(err => console.error('Failed to refresh after auto-load:', err));
                             }
                         });
                     });
