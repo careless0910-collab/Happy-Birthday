@@ -1286,7 +1286,7 @@ Goodbye… for now. 🌙</p>
                     <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><input type="checkbox" id="ghAutoPublish"> <span style="font-size:13px;color:#555">Auto-publish new memories to GitHub</span></label>
                     <div style="display:flex;gap:8px">
                         <button class="btn-primary" onclick="saveGitHubSettings()" style="flex:1">Save Settings</button>
-                        <button class="btn-secondary" onclick="publishMemoriesToGitHub()" style="flex:1">Publish Now</button>
+                        <button class="btn-secondary" onclick="checkAndPublish()" style="flex:1">Publish Now</button>
                     </div>
                     <div style="display:flex;gap:8px;margin-top:10px">
                         <button class="btn-secondary" onclick="removeDuplicateMemories()" style="flex:1">🧹 Remove Duplicates</button>
@@ -1839,6 +1839,43 @@ Goodbye… for now. 🌙</p>
                         showMessage('❌ Publish failed: ' + (help || err.message || 'See debug output'), false);
                     });
             }).catch(err => { console.error('Build export failed:', err); showMessage('❌ Failed to build export.', false); });
+        }
+
+        // Check repository accessibility and show detailed info in debug panel
+        function checkGitHubRepoAccess(owner, repo, token) {
+            const debugEl = document.getElementById('ghDebug');
+            const apiUrl = `https://api.github.com/repos/${owner}/${repo}`;
+            if (debugEl) debugEl.textContent = 'Checking repo access...';
+            return fetch(apiUrl, { headers: token ? { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } : { Accept: 'application/vnd.github.v3+json' } })
+                .then(res => res.text().then(txt => ({ status: res.status, ok: res.ok, text: txt })))
+                .then(result => {
+                    if (debugEl) debugEl.textContent = `GET ${apiUrl}\nStatus: ${result.status}\n\n${result.text}`;
+                    return result;
+                }).catch(err => {
+                    if (debugEl) debugEl.textContent = `Error checking repo: ${err.message || err}`;
+                    throw err;
+                });
+        }
+
+        // Wrapper: check repo then publish if OK
+        function checkAndPublish() {
+            const owner = (document.getElementById('ghOwner') && document.getElementById('ghOwner').value.trim()) || localStorage.getItem('ghOwner');
+            const repo = (document.getElementById('ghRepo') && document.getElementById('ghRepo').value.trim()) || localStorage.getItem('ghRepo');
+            const token = (document.getElementById('ghToken') && document.getElementById('ghToken').value.trim()) || localStorage.getItem('ghToken');
+            if (!owner || !repo) { showMessage('Enter GitHub owner/repo in Sync tab.', false); return; }
+            showMessage('⏳ Checking repository access...', true);
+            checkGitHubRepoAccess(owner, repo, token).then(info => {
+                if (info.ok) {
+                    showMessage('✅ Repo accessible. Publishing now...', true);
+                    publishMemoriesToGitHub();
+                } else if (info.status === 404) {
+                    showMessage('❌ Publish failed: Repo or path not found (check owner/repo).', false);
+                } else if (info.status === 401) {
+                    showMessage('❌ Publish failed: Unauthorized — check token permissions.', false);
+                } else {
+                    showMessage('❌ Publish check failed. See debug output for details.', false);
+                }
+            }).catch(err => { console.error('Preflight error:', err); showMessage('❌ Preflight check failed. See debug output.', false); });
         }
 
         // Replace local IndexedDB `media` store with the provided memories array.
