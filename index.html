@@ -1277,6 +1277,19 @@ Goodbye… for now. 🌙</p>
                     <p style="font-size:13px;color:#666;margin-bottom:10px;">Visitors will download shared memories from <code>serverURL/memories.json</code></p>
                     <button class="btn-secondary" onclick="loadMemoriesFromServer()" style="width:100%;">☁️ Load from Custom Server</button>
                 </div>
+                <hr style="border:none;border-top:1px solid #ddd;margin:20px 0;">
+                <div>
+                    <p style="font-size:13px;color:#666;margin-bottom:10px;">Publish memories.json directly to a GitHub repository so all visitors see admin uploads. (Requires a GitHub personal access token with `repo` scope.)</p>
+                    <input type="text" id="ghOwner" placeholder="GitHub owner (username or org)" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;margin-bottom:8px;">
+                    <input type="text" id="ghRepo" placeholder="Repository name (e.g. Happy-Birthday)" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;margin-bottom:8px;">
+                    <input type="password" id="ghToken" placeholder="Personal Access Token (kept in your browser)" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;margin-bottom:8px;">
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><input type="checkbox" id="ghAutoPublish"> <span style="font-size:13px;color:#555">Auto-publish new memories to GitHub</span></label>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn-primary" onclick="saveGitHubSettings()" style="flex:1">Save Settings</button>
+                        <button class="btn-secondary" onclick="publishMemoriesToGitHub()" style="flex:1">Publish Now</button>
+                    </div>
+                    <p style="font-size:12px;color:#999;margin-top:8px;">Warning: publishing large base64 images increases repo size. Use sparingly.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -1437,6 +1450,7 @@ Goodbye… for now. 🌙</p>
         function loadData() {
             setupImageUpload();
             applyGalleryColumns();
+            loadGitHubSettings();
             
             const loadFromDB = () => {
                 getAllMedia().then(records => {
@@ -1526,7 +1540,20 @@ Goodbye… for now. 🌙</p>
             if (!selectedFile) { showMessage('Please select a photo or video first!', false); return; }
             if (photos && photos.length >= 8) { showMessage('❌ Maximum 8 memories allowed! Delete some memories to add more.', false); return; }
             const description = document.getElementById('memoryDesc').value || '';
-            addMedia(selectedFile, selectedMediaType, description).then(id => { showMessage('✅ Memory added successfully!', true); removeImagePreview(); document.getElementById('memoryDesc').value = ''; loadData(); setTimeout(() => { const photosSection = document.getElementById('photos-section'); photosSection.scrollIntoView({ behavior: 'smooth' }); }, 500); }).catch(err => { console.error('Failed to add media:', err); showMessage('Failed to save memory. Storage error.', false); });
+            addMedia(selectedFile, selectedMediaType, description).then(id => {
+                showMessage('✅ Memory added successfully!', true);
+                removeImagePreview();
+                document.getElementById('memoryDesc').value = '';
+                // After adding, reload local view
+                loadData();
+                setTimeout(() => { const photosSection = document.getElementById('photos-section'); photosSection.scrollIntoView({ behavior: 'smooth' }); }, 500);
+
+                // If admin enabled auto-publish, try to publish updated memories to GitHub
+                try {
+                    const auto = localStorage.getItem('ghAutoPublish') === 'true';
+                    if (auto) publishMemoriesToGitHub();
+                } catch (e) { console.error('Auto-publish check failed:', e); }
+            }).catch(err => { console.error('Failed to add media:', err); showMessage('Failed to save memory. Storage error.', false); });
         }
 
         function resetForm() { document.getElementById('memoryDesc').value = ''; removeImagePreview(); }
@@ -1708,6 +1735,82 @@ Goodbye… for now. 🌙</p>
                 console.error('Export failed:', err);
                 showMessage('❌ Export failed.', false);
             });
+        }
+
+        // Save GitHub settings to localStorage
+        function saveGitHubSettings() {
+            const owner = document.getElementById('ghOwner').value.trim();
+            const repo = document.getElementById('ghRepo').value.trim();
+            const token = document.getElementById('ghToken').value.trim();
+            const auto = document.getElementById('ghAutoPublish').checked;
+            if (!owner || !repo) { showMessage('Please enter GitHub owner and repo.', false); return; }
+            localStorage.setItem('ghOwner', owner);
+            localStorage.setItem('ghRepo', repo);
+            if (token) localStorage.setItem('ghToken', token);
+            localStorage.setItem('ghAutoPublish', auto ? 'true' : 'false');
+            showMessage('✅ GitHub settings saved (token stored locally).', true);
+        }
+
+        function loadGitHubSettings() {
+            const owner = localStorage.getItem('ghOwner') || '';
+            const repo = localStorage.getItem('ghRepo') || '';
+            const token = localStorage.getItem('ghToken') || '';
+            const auto = localStorage.getItem('ghAutoPublish') === 'true';
+            if (document.getElementById('ghOwner')) document.getElementById('ghOwner').value = owner;
+            if (document.getElementById('ghRepo')) document.getElementById('ghRepo').value = repo;
+            if (document.getElementById('ghToken')) document.getElementById('ghToken').value = token;
+            if (document.getElementById('ghAutoPublish')) document.getElementById('ghAutoPublish').checked = auto;
+        }
+
+        // Helper to build JSON export object (with base64 blobData)
+        function buildExportObject() {
+            return getAllMedia().then(records => {
+                const toExport = records.map(rec => ({ type: rec.type, description: rec.description, createdAt: rec.createdAt, blobData: null }));
+                const promises = records.map((rec, idx) => new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) { toExport[idx].blobData = e.target.result; resolve(); };
+                    if (rec.blob instanceof Blob) reader.readAsDataURL(rec.blob);
+                    else { toExport[idx].blobData = rec.blob; resolve(); }
+                }));
+                return Promise.all(promises).then(() => ({ memories: toExport }));
+            });
+        }
+
+        // Publish memories.json to GitHub repo using REST API (requires token)
+        function publishMemoriesToGitHub() {
+            const owner = (document.getElementById('ghOwner') && document.getElementById('ghOwner').value.trim()) || localStorage.getItem('ghOwner');
+            const repo = (document.getElementById('ghRepo') && document.getElementById('ghRepo').value.trim()) || localStorage.getItem('ghRepo');
+            const token = (document.getElementById('ghToken') && document.getElementById('ghToken').value.trim()) || localStorage.getItem('ghToken');
+            if (!owner || !repo || !token) { showMessage('Enter GitHub owner/repo/token in Sync tab.', false); return; }
+
+            showMessage('⏳ Publishing memories to GitHub...', true);
+            buildExportObject().then(exportObj => {
+                const contentStr = JSON.stringify(exportObj, null, 2);
+                const contentB64 = btoa(unescape(encodeURIComponent(contentStr)));
+                // Get current file SHA (if exists)
+                const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/memories.json`;
+                fetch(apiUrl, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } })
+                    .then(res => {
+                        if (res.ok) return res.json();
+                        if (res.status === 404) return null;
+                        throw new Error('GitHub API error: ' + res.status);
+                    })
+                    .then(data => {
+                        const sha = data && data.sha ? data.sha : null;
+                        const body = { message: 'Update memories.json via admin', content: contentB64 };
+                        if (sha) body.sha = sha;
+                        return fetch(apiUrl, { method: 'PUT', headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }, body: JSON.stringify(body) });
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.content) {
+                            showMessage('✅ Published memories.json to GitHub!', true);
+                        } else {
+                            console.error('Publish failed:', result);
+                            showMessage('❌ Failed to publish to GitHub. Check console for details.', false);
+                        }
+                    }).catch(err => { console.error('Publish error:', err); showMessage('❌ Publish failed: ' + err.message, false); });
+            }).catch(err => { console.error('Build export failed:', err); showMessage('❌ Failed to build export.', false); });
         }
 
         function loadMemoriesFromServer() {
