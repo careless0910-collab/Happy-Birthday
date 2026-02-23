@@ -1318,11 +1318,11 @@ Goodbye… for now. 🌙</p>
             });
         }
 
-        function addMedia(fileBlob, type, description) {
+        function addMedia(fileBlob, type, description, createdAt) {
             return openDB().then(db => new Promise((resolve, reject) => {
                 const tx = db.transaction('media', 'readwrite');
                 const store = tx.objectStore('media');
-                const rec = { blob: fileBlob, type: type || 'photo', description: description || '', createdAt: Date.now() };
+                const rec = { blob: fileBlob, type: type || 'photo', description: description || '', createdAt: createdAt || Date.now() };
                 const r = store.add(rec);
                 r.onsuccess = function(ev) { resolve(ev.target.result); };
                 r.onerror = function(ev) { reject(ev.target.error); };
@@ -1435,6 +1435,7 @@ Goodbye… for now. 🌙</p>
 
         function addNewMemory() {
             if (!selectedFile) { showMessage('Please select a photo or video first!', false); return; }
+            if (photos && photos.length >= 8) { showMessage('❌ Maximum 8 memories allowed! Delete some memories to add more.', false); return; }
             const description = document.getElementById('memoryDesc').value || '';
             addMedia(selectedFile, selectedMediaType, description).then(id => { showMessage('✅ Memory added successfully!', true); removeImagePreview(); document.getElementById('memoryDesc').value = ''; loadData(); setTimeout(() => { const photosSection = document.getElementById('photos-section'); photosSection.scrollIntoView({ behavior: 'smooth' }); }, 500); }).catch(err => { console.error('Failed to add media:', err); showMessage('Failed to save memory. Storage error.', false); });
         }
@@ -1577,24 +1578,33 @@ Goodbye… for now. 🌙</p>
                 .then(data => {
                     const memories = data.memories || data;
                     
-                    // Get existing memories to check for duplicates
+                    // Get existing memories to check for duplicates and limit
                     return getAllMedia().then(existingRecords => {
                         const existingCreatedAt = new Set(existingRecords.map(r => r.createdAt));
                         
                         let loaded = 0;
+                        let attemptedToAdd = 0;
                         const promises = memories.map(mem => {
                             // Skip if memory with same createdAt already exists (prevents duplicates)
                             if (existingCreatedAt.has(mem.createdAt)) {
                                 return Promise.resolve();
                             }
                             
-                            if (mem.blobData && mem.blobData.startsWith('data:')) {
-                                return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
+                            // Check if adding would exceed 8 memories
+                            if (existingRecords.length + loaded >= 8) {
+                                attemptedToAdd++;
+                                return Promise.resolve();
+                            }
+                            
+                                if (mem.blobData && mem.blobData.startsWith('data:')) {
+                                return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description, mem.createdAt)).then(() => { loaded++; });
                             }
                             return Promise.resolve();
                         });
                         return Promise.all(promises).then(() => {
-                            showMessage(`✅ Loaded ${loaded} new memories from server!`, true);
+                            let msg = `✅ Loaded ${loaded} new memories from server!`;
+                            if (attemptedToAdd > 0) msg += ` (Skipped ${attemptedToAdd} due to 8-memory limit)`;
+                            showMessage(msg, true);
                             if (serverURL) localStorage.setItem('serverURL', serverURL);
                             loadData();
                         });
@@ -1617,7 +1627,7 @@ Goodbye… for now. 🌙</p>
                     if (!data) return;
                     const memories = data.memories || data;
                     
-                    // Get existing memories to check for duplicates
+                    // Get existing memories to check for duplicates and limit
                     return getAllMedia().then(existingRecords => {
                         const existingCreatedAt = new Set(existingRecords.map(r => r.createdAt));
                         
@@ -1628,8 +1638,13 @@ Goodbye… for now. 🌙</p>
                                 return Promise.resolve();
                             }
                             
+                            // Check if adding would exceed 8 memories
+                            if (existingRecords.length + loaded >= 8) {
+                                return Promise.resolve();
+                            }
+                            
                             if (mem.blobData && mem.blobData.startsWith('data:')) {
-                                return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
+                                return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description, mem.createdAt)).then(() => { loaded++; });
                             }
                             return Promise.resolve();
                         });
