@@ -1394,17 +1394,23 @@ Goodbye… for now. 🌙</p>
         function loadData() {
             setupImageUpload();
             applyGalleryColumns();
+            
+            const loadFromDB = () => {
+                getAllMedia().then(records => {
+                    records.sort((a,b) => a.createdAt - b.createdAt);
+                    photos = records;
+                    loadPhotos();
+                    loadMemoryList();
+                }).catch(err => console.error('Failed to load media:', err));
+            };
+            
             // Try to auto-load memories from shared memories.json file (only once)
             if (!autoLoadDone) {
                 autoLoadDone = true;
-                autoLoadMemoriesFromServer();
+                autoLoadMemoriesFromServer(() => loadFromDB());
+            } else {
+                loadFromDB();
             }
-            getAllMedia().then(records => {
-                records.sort((a,b) => a.createdAt - b.createdAt);
-                photos = records;
-                loadPhotos();
-                loadMemoryList();
-            }).catch(err => console.error('Failed to load media:', err));
         }
 
         function setupImageUpload() {
@@ -1620,7 +1626,7 @@ Goodbye… for now. 🌙</p>
                 });
         }
 
-        function autoLoadMemoriesFromServer() {
+        function autoLoadMemoriesFromServer(onComplete) {
             // On page load, try to auto-load from memories.json in same folder
             fetch('memories.json')
                 .then(res => {
@@ -1628,7 +1634,10 @@ Goodbye… for now. 🌙</p>
                     return null;
                 })
                 .then(data => {
-                    if (!data) return;
+                    if (!data) {
+                        if (onComplete) onComplete();
+                        return;
+                    }
                     const memories = data.memories || data;
                     
                     // Get existing memories to check for duplicates and limit
@@ -1653,22 +1662,17 @@ Goodbye… for now. 🌙</p>
                             return Promise.resolve();
                         });
                         return Promise.all(promises).then(() => {
-                            if (loaded > 0) {
-                                console.log('Auto-loaded ' + loaded + ' new memories from memories.json');
-                                // Refresh UI without calling loadData() to avoid infinite recursion
-                                getAllMedia().then(records => {
-                                    records.sort((a,b) => a.createdAt - b.createdAt);
-                                    photos = records;
-                                    loadPhotos();
-                                    loadMemoryList();
-                                }).catch(err => console.error('Failed to refresh after auto-load:', err));
-                            }
+                            console.log('Auto-loaded ' + loaded + ' new memories from memories.json');
+                            if (onComplete) onComplete();
                         });
                     });
                 })
                 .catch(err => {
                     // memories.json doesn't exist, that's okay - just use local IndexedDB
                     console.log('No shared memories.json found, using local IndexedDB.');
+                    if (onComplete) onComplete();
+                });
+        }
                 });
         }
     </script>
