@@ -1576,17 +1576,28 @@ Goodbye… for now. 🌙</p>
                 })
                 .then(data => {
                     const memories = data.memories || data;
-                    let loaded = 0;
-                    const promises = memories.map(mem => {
-                        if (mem.blobData && mem.blobData.startsWith('data:')) {
-                            return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
-                        }
-                        return Promise.resolve();
-                    });
-                    return Promise.all(promises).then(() => {
-                        showMessage(`✅ Loaded ${loaded} memories from server!`, true);
-                        if (serverURL) localStorage.setItem('serverURL', serverURL);
-                        loadData();
+                    
+                    // Get existing memories to check for duplicates
+                    return getAllMedia().then(existingRecords => {
+                        const existingCreatedAt = new Set(existingRecords.map(r => r.createdAt));
+                        
+                        let loaded = 0;
+                        const promises = memories.map(mem => {
+                            // Skip if memory with same createdAt already exists (prevents duplicates)
+                            if (existingCreatedAt.has(mem.createdAt)) {
+                                return Promise.resolve();
+                            }
+                            
+                            if (mem.blobData && mem.blobData.startsWith('data:')) {
+                                return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
+                            }
+                            return Promise.resolve();
+                        });
+                        return Promise.all(promises).then(() => {
+                            showMessage(`✅ Loaded ${loaded} new memories from server!`, true);
+                            if (serverURL) localStorage.setItem('serverURL', serverURL);
+                            loadData();
+                        });
                     });
                 })
                 .catch(err => {
@@ -1605,16 +1616,29 @@ Goodbye… for now. 🌙</p>
                 .then(data => {
                     if (!data) return;
                     const memories = data.memories || data;
-                    let loaded = 0;
-                    const promises = memories.map(mem => {
-                        if (mem.blobData && mem.blobData.startsWith('data:')) {
-                            return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
-                        }
-                        return Promise.resolve();
-                    });
-                    return Promise.all(promises).then(() => {
-                        console.log('Auto-loaded ' + loaded + ' memories from memories.json');
-                        loadData();
+                    
+                    // Get existing memories to check for duplicates
+                    return getAllMedia().then(existingRecords => {
+                        const existingCreatedAt = new Set(existingRecords.map(r => r.createdAt));
+                        
+                        let loaded = 0;
+                        const promises = memories.map(mem => {
+                            // Skip if memory with same createdAt already exists (prevents duplicates)
+                            if (existingCreatedAt.has(mem.createdAt)) {
+                                return Promise.resolve();
+                            }
+                            
+                            if (mem.blobData && mem.blobData.startsWith('data:')) {
+                                return fetch(mem.blobData).then(res => res.blob()).then(blob => addMedia(blob, mem.type, mem.description)).then(() => { loaded++; });
+                            }
+                            return Promise.resolve();
+                        });
+                        return Promise.all(promises).then(() => {
+                            if (loaded > 0) {
+                                console.log('Auto-loaded ' + loaded + ' new memories from memories.json');
+                                loadData();
+                            }
+                        });
                     });
                 })
                 .catch(err => {
