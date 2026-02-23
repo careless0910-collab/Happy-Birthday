@@ -1335,7 +1335,7 @@ Goodbye… for now. 🌙</p>
         let selectedPreviewURL = null;
         let selectedMediaType = null;
         let replaceId = null;
-        let autoLoadDone = false; // Flag to prevent multiple auto-loads
+        let autoLoadDone = localStorage.getItem('autoLoadDone') === 'true'; // Persist across page reloads
 
         function openDB() {
             return new Promise((resolve, reject) => {
@@ -1440,6 +1440,7 @@ Goodbye… for now. 🌙</p>
             // Try to auto-load memories from shared memories.json file (only once)
             if (!autoLoadDone) {
                 autoLoadDone = true;
+                localStorage.setItem('autoLoadDone', 'true');
                 loadEmbeddedMemories(() => {
                     autoLoadMemoriesFromServer(() => loadFromDB());
                 });
