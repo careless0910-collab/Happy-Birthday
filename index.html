@@ -482,6 +482,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
             border-left: 4px solid #cc2b5e;
         }
 
@@ -505,6 +506,15 @@
             display: flex;
             gap: 8px;
             margin-left: 10px;
+        }
+
+        /* Ensure checkboxes in the memory list are visible and styled */
+        .memory-item input[type="checkbox"], #selectAllMemories {
+            width: 18px;
+            height: 18px;
+            margin: 0 8px 0 0;
+            accent-color: #cc2b5e;
+            cursor: pointer;
         }
 
         .memory-item-buttons button {
