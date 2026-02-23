@@ -1295,6 +1295,40 @@ Goodbye… for now. 🌙</p>
     </div>
 
     <script>
+        /*
+        === EMBEDDED MEMORIES SETUP ===
+        
+        To add memories that ALL viewers will see automatically (without needing memories.json):
+        
+        1. Convert your image/video to base64:
+           - Online: https://www.base64encode.org/ (upload image/video)
+           - Browser DevTools: 
+             const canvas = document.querySelector('img');
+             const data = canvas.toDataURL('image/jpeg', 0.9);
+             console.log(data); // Copy the data:image/... output
+        
+        2. Add to the defaultMemories array below with format:
+           {
+             type: 'photo',                    // or 'video'
+             description: 'Your caption',
+             createdAt: Date.now(),            // or specific timestamp
+             blobData: 'data:image/jpeg;base64,/9j/4AAQSkZJRg...'  // The base64 data
+           }
+        
+        3. Save and upload. Viewers will automatically see these memories!
+        
+        Note: Keep base64 data as compact as possible to avoid huge file sizes.
+        Max 8 memories total (including memories.json).
+        */
+
+        // Embedded memories with base64 data - add your photos/videos here
+        // Format: { type: 'photo'|'video', description: 'text', createdAt: timestamp, blobData: 'data:image/jpeg;base64,...' }
+        const defaultMemories = [
+            // Example:
+            // { type: 'photo', description: '2 Cuties 🥹', createdAt: 1771797973413, blobData: 'data:image/jpeg;base64,/9j/4AAQSkZJRg...' }
+            // Add more memories here by base64 encoding your images/videos
+        ];
+
         // Use IndexedDB for media storage so many/large videos can be saved.
         let photos = []; // will hold records from DB
 
@@ -1407,10 +1441,45 @@ Goodbye… for now. 🌙</p>
             // Try to auto-load memories from shared memories.json file (only once)
             if (!autoLoadDone) {
                 autoLoadDone = true;
-                autoLoadMemoriesFromServer(() => loadFromDB());
+                loadEmbeddedMemories(() => {
+                    autoLoadMemoriesFromServer(() => loadFromDB());
+                });
             } else {
                 loadFromDB();
             }
+        }
+
+        // Load embedded memories from the HTML file
+        function loadEmbeddedMemories(onComplete) {
+            if (!defaultMemories || defaultMemories.length === 0) {
+                if (onComplete) onComplete();
+                return;
+            }
+
+            getAllMedia().then(existingRecords => {
+                const existingCreatedAt = new Set(existingRecords.map(r => r.createdAt));
+                let loaded = 0;
+
+                const promises = defaultMemories.map(mem => {
+                    // Skip if already exists
+                    if (existingCreatedAt.has(mem.createdAt)) {
+                        return Promise.resolve();
+                    }
+
+                    if (mem.blobData && mem.blobData.startsWith('data:')) {
+                        return fetch(mem.blobData)
+                            .then(res => res.blob())
+                            .then(blob => addMedia(blob, mem.type, mem.description, mem.createdAt))
+                            .then(() => { loaded++; });
+                    }
+                    return Promise.resolve();
+                });
+
+                return Promise.all(promises).then(() => {
+                    console.log('Loaded ' + loaded + ' embedded memories');
+                    if (onComplete) onComplete();
+                });
+            });
         }
 
         function setupImageUpload() {
@@ -1671,8 +1740,6 @@ Goodbye… for now. 🌙</p>
                     // memories.json doesn't exist, that's okay - just use local IndexedDB
                     console.log('No shared memories.json found, using local IndexedDB.');
                     if (onComplete) onComplete();
-                });
-        }
                 });
         }
     </script>
