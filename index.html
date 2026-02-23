@@ -1801,7 +1801,7 @@ Goodbye… for now. 🌙</p>
                     .then(res => {
                         if (res.ok) return res.json();
                         if (res.status === 404) return null;
-                        throw new Error('GitHub API error: ' + res.status);
+                        return res.text().then(txt => { throw new Error(`GitHub GET error ${res.status}: ${txt}`); });
                     })
                     .then(data => {
                         const sha = data && data.sha ? data.sha : null;
@@ -1809,15 +1809,26 @@ Goodbye… for now. 🌙</p>
                         if (sha) body.sha = sha;
                         return fetch(apiUrl, { method: 'PUT', headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }, body: JSON.stringify(body) });
                     })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) return res.text().then(txt => { throw new Error(`GitHub PUT error ${res.status}: ${txt}`); });
+                        return res.json();
+                    })
                     .then(result => {
-                        if (result.content) {
+                        if (result && result.content) {
                             showMessage('✅ Published memories.json to GitHub!', true);
                         } else {
-                            console.error('Publish failed:', result);
+                            console.error('Publish failed (no content):', result);
                             showMessage('❌ Failed to publish to GitHub. Check console for details.', false);
                         }
-                    }).catch(err => { console.error('Publish error:', err); showMessage('❌ Publish failed: ' + err.message, false); });
+                    }).catch(err => {
+                        console.error('Publish error:', err);
+                        // Provide a more helpful message to the admin
+                        let help = '';
+                        if (err.message && err.message.includes('404')) help = 'Repo or path not found (check owner/repo).';
+                        else if (err.message && err.message.includes('401')) help = 'Unauthorized — check token permissions.';
+                        else if (err.message && err.message.includes('rate limit')) help = 'Rate limited by GitHub. Try again later.';
+                        showMessage('❌ Publish failed: ' + (help || err.message || 'See console'), false);
+                    });
             }).catch(err => { console.error('Build export failed:', err); showMessage('❌ Failed to build export.', false); });
         }
 
