@@ -1292,6 +1292,10 @@ Goodbye… for now. 🌙</p>
                         <button class="btn-secondary" onclick="removeDuplicateMemories()" style="flex:1">🧹 Remove Duplicates</button>
                         <button class="btn-danger" onclick="clearAllMemories()" style="flex:1">🗑️ Clear All</button>
                     </div>
+                    <div style="display:flex;gap:8px;margin-top:10px">
+                        <button class="btn-secondary" onclick="testDedupeFlow()" style="flex:1">🔬 Run Dedupe Test</button>
+                        <button class="btn-secondary" onclick="testClearFlow()" style="flex:1">🔬 Run Clear Test</button>
+                    </div>
                     <p style="font-size:12px;color:#999;margin-top:8px;">Warning: publishing large base64 images increases repo size. Use sparingly.</p>
                 </div>
             </div>
@@ -1884,6 +1888,37 @@ Goodbye… for now. 🌙</p>
                 req.onsuccess = function() { db.close(); resolve(true); };
                 req.onerror = function(e) { db.close(); reject(e.target.error); };
             })).then(() => { showMessage('🗑️ All memories cleared.', true); loadData(); }).catch(err => { console.error('Clear failed:', err); showMessage('Failed to clear memories.', false); });
+        }
+
+        // --- Test helpers (temporary) ---
+        // Create two identical small blobs, add both, then run dedupe
+        function testDedupeFlow() {
+            showMessage('⏳ Creating duplicate test memories...', true);
+            // tiny 1x1 png
+            const dataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
+            fetch(dataUrl).then(r => r.blob()).then(blob => {
+                const created = Date.now();
+                addMedia(blob, 'photo', 'dupe-test', created).then(() => {
+                    // add second duplicate
+                    addMedia(blob, 'photo', 'dupe-test', created + 1).then(() => {
+                        showMessage('✅ Duplicate test memories added — running dedupe...', true);
+                        // run dedupe
+                        setTimeout(() => removeDuplicateMemories(), 500);
+                    });
+                });
+            }).catch(err => { console.error('Test add failed', err); showMessage('Test failed to create duplicates.', false); });
+        }
+
+        // Create a couple of test records then clear to confirm clearAllMemories works
+        function testClearFlow() {
+            showMessage('⏳ Creating test memories for clear...', true);
+            const dataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
+            fetch(dataUrl).then(r => r.blob()).then(blob => {
+                Promise.all([addMedia(blob,'photo','clear-test1'), addMedia(blob,'photo','clear-test2')]).then(() => {
+                    showMessage('✅ Test memories added — running clear...', true);
+                    setTimeout(() => clearAllMemories(), 500);
+                });
+            }).catch(err => { console.error('Test clear failed', err); showMessage('Test failed to create memories for clear.', false); });
         }
 
         function loadMemoriesFromServer() {
