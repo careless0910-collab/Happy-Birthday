@@ -1288,6 +1288,10 @@ Goodbye… for now. 🌙</p>
                         <button class="btn-primary" onclick="saveGitHubSettings()" style="flex:1">Save Settings</button>
                         <button class="btn-secondary" onclick="publishMemoriesToGitHub()" style="flex:1">Publish Now</button>
                     </div>
+                    <div style="display:flex;gap:8px;margin-top:10px">
+                        <button class="btn-secondary" onclick="removeDuplicateMemories()" style="flex:1">🧹 Remove Duplicates</button>
+                        <button class="btn-danger" onclick="clearAllMemories()" style="flex:1">🗑️ Clear All</button>
+                    </div>
                     <p style="font-size:12px;color:#999;margin-top:8px;">Warning: publishing large base64 images increases repo size. Use sparingly.</p>
                 </div>
             </div>
@@ -1811,6 +1815,75 @@ Goodbye… for now. 🌙</p>
                         }
                     }).catch(err => { console.error('Publish error:', err); showMessage('❌ Publish failed: ' + err.message, false); });
             }).catch(err => { console.error('Build export failed:', err); showMessage('❌ Failed to build export.', false); });
+        }
+
+        // Compute SHA-256 hex digest for a Blob
+        function computeHashFromBlob(blob) {
+            return blob.arrayBuffer().then(buf => crypto.subtle.digest('SHA-256', buf)).then(hashBuffer => {
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            });
+        }
+
+        // Compute SHA-256 hex digest for a data URL string
+        function computeHashFromDataURL(dataUrl) {
+            try {
+                const parts = dataUrl.split(',');
+                const b64 = parts[1] || '';
+                const binary = atob(b64);
+                const len = binary.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+                return crypto.subtle.digest('SHA-256', bytes).then(hashBuffer => {
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                });
+            } catch (e) {
+                return Promise.resolve(null);
+            }
+        }
+
+        // Remove duplicate memories in IndexedDB based on blob hash
+        function removeDuplicateMemories() {
+            showMessage('⏳ Scanning for duplicates...', true);
+            getAllMedia().then(records => {
+                const hashMap = new Map();
+                const toDelete = [];
+                const promises = records.map(rec => {
+                    if (rec.hash) return Promise.resolve({ id: rec.id, hash: rec.hash });
+                    // compute hash from blob
+                    if (rec.blob instanceof Blob) return computeHashFromBlob(rec.blob).then(h => ({ id: rec.id, hash: h }));
+                    return Promise.resolve({ id: rec.id, hash: null });
+                });
+                Promise.all(promises).then(list => {
+                    list.forEach(item => {
+                        const h = item.hash || 'nohash_' + item.id;
+                        if (hashMap.has(h)) {
+                            toDelete.push(item.id);
+                        } else {
+                            hashMap.set(h, item.id);
+                        }
+                    });
+                    if (toDelete.length === 0) {
+                        showMessage('No duplicate memories found.', true);
+                        return;
+                    }
+                    const delPromises = toDelete.map(id => deleteMedia(id));
+                    Promise.all(delPromises).then(() => { showMessage(`🧹 Removed ${toDelete.length} duplicate memories.`, true); loadData(); }).catch(err => { console.error('Failed deleting duplicates:', err); showMessage('Failed to remove duplicates.', false); });
+                });
+            }).catch(err => { console.error('Failed scanning media:', err); showMessage('Failed to scan for duplicates.', false); });
+        }
+
+        // Clear all memories from IndexedDB
+        function clearAllMemories() {
+            if (!confirm('Are you sure? This will permanently delete ALL memories from this browser.')) return;
+            openDB().then(db => new Promise((resolve, reject) => {
+                const tx = db.transaction('media', 'readwrite');
+                const store = tx.objectStore('media');
+                const req = store.clear();
+                req.onsuccess = function() { db.close(); resolve(true); };
+                req.onerror = function(e) { db.close(); reject(e.target.error); };
+            })).then(() => { showMessage('🗑️ All memories cleared.', true); loadData(); }).catch(err => { console.error('Clear failed:', err); showMessage('Failed to clear memories.', false); });
         }
 
         function loadMemoriesFromServer() {
