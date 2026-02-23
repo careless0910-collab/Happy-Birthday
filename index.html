@@ -1296,6 +1296,10 @@ Goodbye… for now. 🌙</p>
                         <button class="btn-secondary" onclick="testDedupeFlow()" style="flex:1">🔬 Run Dedupe Test</button>
                         <button class="btn-secondary" onclick="testClearFlow()" style="flex:1">🔬 Run Clear Test</button>
                     </div>
+                    <div style="margin-top:12px;">
+                        <label style="font-size:12px;color:#777;display:block;margin-bottom:6px;">API debug output (paste/share this if publish fails):</label>
+                        <pre id="ghDebug" style="max-height:140px;overflow:auto;background:#fafafa;border:1px solid #eee;padding:8px;border-radius:6px;font-size:12px;color:#333;white-space:pre-wrap;"></pre>
+                    </div>
                     <p style="font-size:12px;color:#999;margin-top:8px;">Warning: publishing large base64 images increases repo size. Use sparingly.</p>
                 </div>
             </div>
@@ -1814,20 +1818,25 @@ Goodbye… for now. 🌙</p>
                         return res.json();
                     })
                     .then(result => {
+                        const debugEl = document.getElementById('ghDebug');
                         if (result && result.content) {
                             showMessage('✅ Published memories.json to GitHub!', true);
+                            if (debugEl) debugEl.textContent = JSON.stringify(result, null, 2);
                         } else {
                             console.error('Publish failed (no content):', result);
-                            showMessage('❌ Failed to publish to GitHub. Check console for details.', false);
+                            if (debugEl) debugEl.textContent = JSON.stringify(result, null, 2);
+                            showMessage('❌ Failed to publish to GitHub. See debug output for details.', false);
                         }
                     }).catch(err => {
                         console.error('Publish error:', err);
+                        const debugEl = document.getElementById('ghDebug');
+                        if (debugEl) debugEl.textContent = (err && err.message) ? err.message : String(err);
                         // Provide a more helpful message to the admin
                         let help = '';
                         if (err.message && err.message.includes('404')) help = 'Repo or path not found (check owner/repo).';
                         else if (err.message && err.message.includes('401')) help = 'Unauthorized — check token permissions.';
                         else if (err.message && err.message.includes('rate limit')) help = 'Rate limited by GitHub. Try again later.';
-                        showMessage('❌ Publish failed: ' + (help || err.message || 'See console'), false);
+                        showMessage('❌ Publish failed: ' + (help || err.message || 'See debug output'), false);
                     });
             }).catch(err => { console.error('Build export failed:', err); showMessage('❌ Failed to build export.', false); });
         }
